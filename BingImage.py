@@ -4,7 +4,7 @@ from BingImageCreator import ImageGen
 from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 from .. import loader
-
+#meta developer: @POMA_TERABAITbI
 @loader.tds
 class Bingimage(loader.Module):
     strings = {"name": "BingIMage"}
