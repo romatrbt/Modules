@@ -1,34 +1,52 @@
+#meta developer: @POMA_TERABAITbI
 import os
 import shutil
 from BingImageCreator import ImageGen
 from PIL import Image, UnidentifiedImageError
 from io import BytesIO
 from .. import loader
-#meta developer: @POMA_TERABAITbI
 @loader.tds
 class Bingimage(loader.Module):
-    strings = {"name": "BingIMage"}
+    """Генерирует Картиночки"""
+
+    strings_ru = {
+        "name": "BingIMage",
+        "config_warning": "Bing cookie. Хранить в недоступном для детей месте.",
+        "config_set_cookie": "Сначала установите ваш Bing cookie через конфиг, команда:  cfg BingIMage\n <a href='https://t.me/TerabyteModules'>[ТУТОРИАЛ ПО ПОЛУЧЕНИЮ BING COOKIE ЗДЕСЬ]</a>",
+        "generate_message": "🔄 <b>Генерирую!</b>",
+        "generate_prompt": "🚫 А что генерировать собственно?",
+        "image_caption": "📸 <b>Изображения по запросу:</b> {}",
+    }
+
+    strings = {
+        "name": "BingIMage",
+        "config_warning": "Bing cookie. Keep out of reach of children.",
+        "config_set_cookie": "First set your Bing cookie through the config, command: cfg BingIMage\n <a href='https://t.me/TerabyteModules'>[TUTORIAL ON GETTING BING COOKIE HERE]</a>",
+        "generate_message": "🔄 <b>Generating!</b>",
+        "generate_prompt": "🚫  What's to generate, exactly?",
+        "image_caption": "📸 <b>Images on request:</b> {}",
+    }
 
     def __init__(self):
         self.config = loader.ModuleConfig(
             loader.ConfigValue(
                 "bing_cookie",
                 None,
-                lambda: "Bing cookie. Хранить в недостпуном для детей месте",
+                self.strings["config_warning"],
                 validator=loader.validators.Hidden(),
             )
         )
-
-    async def creatorcmd(self, message):
-        """<Запрос> Получить Картиночки 🖼️"""
-        await message.edit("🔄 <b>Генерирую!</b>")
+    @loader.command(ru_doc="<Запрос> - Получить Картиночки 🖼️")
+    async def creator(self, message):
+        """<Request> - Get Pictures 🖼️"""
+        await message.edit(self.strings["generate_message"])
         if not self.config["bing_cookie"]:
-            await message.edit("🚫 Сначала установите ваш Bing cookie через конфиг, команда:  cfg BingIMage\n <a href='https://t.me/TerabyteModules'>[ТУТОРИАЛ ПО ПОЛУЧЕНИЮ BING COOKIE ЗДЕСЬ]</a>")
+            await message.edit(self.strings["config_set_cookie"])
             return
 
         args = message.text.split(" ", 1)
         if len(args) < 2:
-            await message.edit("🚫 А что генерировать собственно?")
+            await message.edit(self.strings["generate_prompt"])
             return
 
         text = args[1]
@@ -56,7 +74,7 @@ class Bingimage(loader.Module):
                     print(f"Ignoring unreadable image: {f}")
 
         if output_files:
-            caption = f"📸 <b>Изображения по запросу:</b> {text}"
+            caption = self.strings["image_caption"].format(text)
             await message.client.send_file(message.chat_id, file=output_files, caption=caption, force_document=False, reply_to=message.id)
             await message.delete()
             
